@@ -7,7 +7,6 @@ from django.contrib import messages
 # Create your views here.
 
 
-@staff_member_required
 def register(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)

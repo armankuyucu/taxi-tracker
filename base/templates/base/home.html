@@ -1,10 +1,100 @@
+{#{% extends 'base/base2.html' %}#}
+{% load static %}
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Home</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+
+    <title>Simple Map</title>
+    {#        <link rel="stylesheet" type="text/css" href="/static/main.css"/>#}
+
+    <style>
+        #map {
+            height: 95%;
+        }
+
+        /* Optional: Makes the sample page fill the window. */
+        html,
+        body {
+            height: 98%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+
+
 </head>
+
 <body>
+<!-- Option 1: Bootstrap Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
+
+<div class="container">
+    <header class="d-flex flex-wrap justify-content-center py-2 mb-2">
+        <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+            {#            <svg class="bi me-2" width="40" height="32">#}
+            {#                <use></use>#}
+            {#            </svg>#}
+            <span class="fs-4"></span>
+        </a>
+
+        <ul class="nav nav-pills">
+            {% if user.is_authenticated %}
+                <li class="nav-item"><a href="{% url 'logout' %}" class="nav-link active" aria-current="page">Logout</a>
+                </li>
+            {% else %}
+                <li class="nav-item"><a href="{% url 'login' %}" class="nav-link active" aria-current="page">Login</a>
+                </li>
+                {#            <li class="nav-item"><a href="#" class="nav-link">Features</a></li>#}
+            {% endif %}
+
+        </ul>
+    </header>
+</div>
+<div id="map"></div>
+<!-- Async script executes immediately and must be after any DOM elements used in callback. -->
+<script
+        src="https://maps.googleapis.com/maps/api/js?key={{ api_key|safe }}&callback=initMap&v=weekly"
+        async
+></script>
 
 </body>
+{#{% endblock %}#}
+{##}
+{#{% block extend_footer %}#}
+
+
+<script type="text/javascript">
+
+    {#var google_api_key = "{{api_key|safe}}";#}
+    {#var lat_a = {{lat_a|safe}};#}
+    {#var long_a = {{long_a|safe}};#}
+    {#var lat_b = {{lat_a|safe}};#}
+    {#var long_b = {{long_b|safe}};#}
+    {#var origin = "{{origin|safe}}";#}
+    {#var destination = "{{destination|safe}}";#}
+    {#var directions = {{directions|safe}}#}
+
+</script>
+{{ mydata|json_script:"mydata" }}
+<script src="{% static 'google_maps.js' %}"></script>
 </html>
+
+
+
+
+
+
+
+
+
