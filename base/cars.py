@@ -3,7 +3,7 @@ from mongoengine import Document
 
 
 class Cars(Document):
-    date_time = mongoengine.DateTimeField(required=True)
+    date_time = mongoengine.StringField(required=True)
     latitude = mongoengine.FloatField(required=True)
     longitude = mongoengine.FloatField(required=True)
     car_id = mongoengine.IntField(required=True)
