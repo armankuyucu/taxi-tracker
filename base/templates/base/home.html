@@ -1,4 +1,3 @@
-{#{% extends 'base/base2.html' %}#}
 {% load static %}
 
 
@@ -40,7 +39,24 @@
         crossorigin="anonymous"></script>
 
 <div class="container">
+
     <header class="d-flex flex-wrap justify-content-center py-2 mb-2">
+
+        {#        <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">#}
+        {#        </form>#}
+
+        <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
+                <label for="startHour">Başlangıç saati</label>
+                <input id="startHour" type="number" name="startHour" min="0" max="24" required>
+                <span class="validity"></span>
+
+                <label for="endHour">Bitiş saati</label>
+                <input id="endHour" type="number" name="endHour" min="0" max="24" required>
+                <span class="validity"></span>
+                <button type="button" id="submit">Submit</button>
+
+        </form>
+
         <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
             {#            <svg class="bi me-2" width="40" height="32">#}
             {#                <use></use>#}
@@ -50,19 +66,27 @@
 
         <ul class="nav nav-pills">
             {% if user.is_authenticated %}
-                <li class="nav-item"><a href="{% url 'logout' %}" class="nav-link active" aria-current="page">Logout</a>
+                <li class="nav-item"><a href="{% url 'logout' %}" class="nav-link active"
+                                        aria-current="page">Logout</a>
                 </li>
             {% else %}
-                <li class="nav-item"><a href="{% url 'login' %}" class="nav-link active" aria-current="page">Login</a>
+                <li class="nav-item"><a href="{% url 'login' %}" class="nav-link active"
+                                        aria-current="page">Login</a>
                 </li>
                 {#            <li class="nav-item"><a href="#" class="nav-link">Features</a></li>#}
             {% endif %}
 
         </ul>
+
     </header>
 </div>
 <div id="map"></div>
 <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
+
+{{ mydata|json_script:"mydata" }}
+{{ user_id|json_script:"user_id" }}
+<script src="{% static 'google_maps.js' %}"></script>
+
 <script
         src="https://maps.googleapis.com/maps/api/js?key={{ api_key|safe }}&callback=initMap&v=weekly"
         async
@@ -86,9 +110,6 @@
     {#var directions = {{directions|safe}}#}
 
 </script>
-{{ mydata|json_script:"mydata" }}
-{{ user_id|json_script:"user_id" }}
-<script src="{% static 'google_maps.js' %}"></script>
 </html>
 
 
