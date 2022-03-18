@@ -23,7 +23,7 @@
         /* Optional: Makes the sample page fill the window. */
         html,
         body {
-            height: 98%;
+            height: 99.5%;
             margin: 0;
             padding: 0;
         }
@@ -40,21 +40,30 @@
 
 <div class="container">
 
-    <header class="d-flex flex-wrap justify-content-center py-2 mb-2">
+    <header class="d-flex flex-wrap justify-content-center py-2 mb-0">
 
         {#        <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">#}
         {#        </form>#}
 
-        <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
-                <label for="startHour">Başlangıç saati</label>
-                <input id="startHour" type="number" name="startHour" min="0" max="24" required>
-                <span class="validity"></span>
-
-                <label for="endHour">Bitiş saati</label>
-                <input id="endHour" type="number" name="endHour" min="0" max="24" required>
-                <span class="validity"></span>
-                <button type="button" id="submit">Submit</button>
-
+        <form class="form-inline">
+            <label for="car-select" class="label label-default p-2">Select a car</label>
+            <select class="form-inline" id="car-select" aria-label="cars">
+                <option selected>Please select a car</option>
+                {% if user_id == 2 %}
+                    <option value="34">Car 34</option>
+                    <option value="386">Car 386</option>
+                {% elif user_id == 3 %}
+                    <option value="292">Car 292</option>
+                    <option value="246">Car 246</option>
+                {% endif %}
+            </select>
+            <label for="startHour" class="label label-default p-2">Start time</label>
+            <input class="form-inline" id="startHour" type="number" name="startHour" min="0" max="24" required>
+            <span class="validity"></span>
+            <label for="endHour" class="label label-default p-2">End Time</label>
+            <input class="form-inline" id="endHour" type="number" name="endHour" min="0" max="24" required>
+            <span class="validity p-2"></span>
+            <button type="button" id="submit" class="btn btn-secondary btn-sm mb-1">Submit</button>
         </form>
 
         <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
