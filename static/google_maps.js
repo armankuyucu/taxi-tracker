@@ -25,6 +25,7 @@ function initMap() {
 
     let currentDate = new Date();
     console.log(currentDate);
+    document.getElementById("startHour").value = currentDate.getHours() - 1;
     const currentTime =
         padTo2Digits(currentDate.getHours()) + ':' + padTo2Digits(currentDate.getMinutes());
     console.log(currentTime);
@@ -86,24 +87,27 @@ function initMap() {
         let endHour = document.getElementById("endHour").value;
         let carSelect = document.querySelector('#car-select');
         let car_id = carSelect.value;
+        if (car_id == "Please select a car") {
+            alert("The \"Select a car\" field can't be empty.");
+        } else {
+            if (enforceMinMax(startHour, endHour)) {
+                deleteMarkers();
 
-        if (enforceMinMax(startHour, endHour)) {
-            deleteMarkers();
+                if (user_id == 2) {
 
-            if (user_id == 2) {
+                    if (car_id == 34)
+                        showRoute(user_id, car_id, car34indexes[0], car34indexes[-1], mydataJson, 0, startHour, endHour);
+                    else if (car_id == 386)
+                        showRoute(user_id, car_id, car386indexes[0], car386indexes[-1], mydataJson, 1, startHour, endHour)
+                } else if (user_id == 3) {
 
-                if (car_id == 34)
-                    showRoute(user_id, car_id, car34indexes[0], car34indexes[-1], mydataJson, 0, startHour, endHour);
-                else if (car_id == 386)
-                    showRoute(user_id, car_id, car386indexes[0], car386indexes[-1], mydataJson, 1, startHour, endHour)
-            } else if (user_id == 3) {
-
-                if (car_id == 292)
-                    showRoute(user_id, car_id, car292indexes[0], car292indexes[-1], mydataJson, 0, startHour, endHour);
-                else if (car_id == 246)
-                    showRoute(user_id, car_id, car246indexes[0], car246indexes[-1], mydataJson, 1, startHour, endHour);
-                else
-                    console.log(user_id)
+                    if (car_id == 292)
+                        showRoute(user_id, car_id, car292indexes[0], car292indexes[-1], mydataJson, 0, startHour, endHour);
+                    else if (car_id == 246)
+                        showRoute(user_id, car_id, car246indexes[0], car246indexes[-1], mydataJson, 1, startHour, endHour);
+                    else
+                        console.log(car_id)
+                }
             }
         }
     }
@@ -153,6 +157,7 @@ function last30Minutes(user_id, carIndex, mydataJson, marker_id) {
 
 
 function showRoute(user_id, car_id, carFirstIndex, carLastIndex, mydataJson, marker_id, startHour, endHour) {
+    let counter = 0;
     for (let i = (carFirstIndex + startHour * 60); i < (carFirstIndex + endHour * 60); i++) {
         if (car_id == mydataJson[i].car_id) {
             let coords = {lat: mydataJson[i].latitude, lng: mydataJson[i].longitude};
@@ -178,7 +183,6 @@ function showRoute(user_id, car_id, carFirstIndex, carLastIndex, mydataJson, mar
             });
         }
     }
-
 }
 
 
