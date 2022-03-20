@@ -12,23 +12,17 @@ function initMap() {
     );
 
     const mydata = JSON.parse(document.getElementById('mydata').textContent);
-    // const new_data = mydata.replace("[","'")
     let mydataJson = JSON.parse(mydata);
     mydataJson = JSON.parse(mydataJson);
-    // console.log(mydataJson)
 
     const userId = JSON.parse(document.getElementById('user_id').textContent);
-    // const new_data = mydata.replace("[","'")
     let user_id = JSON.parse(userId);
     user_id = JSON.parse(user_id);
-    console.log("user_id " + user_id);
 
     let currentDate = new Date();
-    console.log(currentDate);
     document.getElementById("startHour").value = currentDate.getHours() - 1;
     const currentTime =
         padTo2Digits(currentDate.getHours()) + ':' + padTo2Digits(currentDate.getMinutes());
-    console.log(currentTime);
 
     let car34indexes = [];
     let car386indexes = [];
@@ -50,23 +44,17 @@ function initMap() {
                 car34indexes.push(i);
             } else if (mydataJson[i].car_id == 386) {
                 if (mydataJson[i].date_time == currentTime) {
-                    // console.log("GİRDİ")
                     car386index = i;
-                    // console.log("car386index " + car386index)
                 }
                 car386indexes.push(i);
             } else if (mydataJson[i].car_id == 292) {
                 if (mydataJson[i].date_time == currentTime) {
-                    // console.log("GİRDİ")
                     car292index = i;
-                    // console.log("car386index " + car386index)
                 }
                 car292indexes.push(i);
             } else if (mydataJson[i].car_id == 246) {
                 if (mydataJson[i].date_time == currentTime) {
-                    // console.log("GİRDİ")
                     car246index = i;
-                    // console.log("car386index " + car386index)
                 }
                 car246indexes.push(i);
             }
@@ -105,8 +93,6 @@ function initMap() {
                         showRoute(user_id, car_id, car292indexes[0], car292indexes[-1], mydataJson, 0, startHour, endHour);
                     else if (car_id == 246)
                         showRoute(user_id, car_id, car246indexes[0], car246indexes[-1], mydataJson, 1, startHour, endHour);
-                    else
-                        console.log(car_id)
                 }
             }
         }
@@ -138,7 +124,6 @@ function last30Minutes(user_id, carIndex, mydataJson, marker_id) {
             marker = addBlueMarker(coords);
         }
 
-        // console.log(typeof (mydataJson[0].latitude));
         let infowindow = new google.maps.InfoWindow({
             content: `lat:${coords.lat}, lng:${coords.lng},
                       date:${mydataJson[i].date_time},
@@ -168,7 +153,6 @@ function showRoute(user_id, car_id, carFirstIndex, carLastIndex, mydataJson, mar
                 marker = addBlueMarker(coords);
             }
 
-            // console.log(typeof (mydataJson[0].latitude));
             let infowindow = new google.maps.InfoWindow({
                 content: `lat:${coords.lat}, lng:${coords.lng},
                       date:${mydataJson[i].date_time},

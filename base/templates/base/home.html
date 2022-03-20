@@ -13,7 +13,6 @@
           integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
 
     <title>Simple Map</title>
-    {#        <link rel="stylesheet" type="text/css" href="/static/main.css"/>#}
 
     <style>
         #map {
@@ -29,7 +28,6 @@
         }
     </style>
 
-
 </head>
 
 <body>
@@ -39,11 +37,7 @@
         crossorigin="anonymous"></script>
 
 <div class="container">
-
     <header class="d-flex flex-wrap justify-content-center py-2 mb-0">
-
-        {#        <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">#}
-        {#        </form>#}
 
         <form class="form-inline">
             <label for="car-select" class="label label-default p-2">Select a car</label>
@@ -67,9 +61,6 @@
         </form>
 
         <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
-            {#            <svg class="bi me-2" width="40" height="32">#}
-            {#                <use></use>#}
-            {#            </svg>#}
             <span class="fs-4"></span>
         </a>
 
@@ -82,7 +73,6 @@
                 <li class="nav-item"><a href="{% url 'login' %}" class="nav-link active"
                                         aria-current="page">Login</a>
                 </li>
-                {#            <li class="nav-item"><a href="#" class="nav-link">Features</a></li>#}
             {% endif %}
 
         </ul>
@@ -102,23 +92,7 @@
 ></script>
 
 </body>
-{#{% endblock %}#}
-{##}
-{#{% block extend_footer %}#}
 
-
-<script type="text/javascript">
-
-    {#var google_api_key = "{{api_key|safe}}";#}
-    {#var lat_a = {{lat_a|safe}};#}
-    {#var long_a = {{long_a|safe}};#}
-    {#var lat_b = {{lat_a|safe}};#}
-    {#var long_b = {{long_b|safe}};#}
-    {#var origin = "{{origin|safe}}";#}
-    {#var destination = "{{destination|safe}}";#}
-    {#var directions = {{directions|safe}}#}
-
-</script>
 </html>
 
 
