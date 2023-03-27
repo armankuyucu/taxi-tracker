@@ -1,4 +1,4 @@
-# Swedish Taxi Tracker App
+# Taxi Tracker App
 
 This app is a web-based tool that displays the past locations of two Swedish taxis on a Google Map interface. The app pulls data from a CSV file containing the taxis' GPS coordinates, which is then stored in a MongoDB database. The locations are shown using different markers on the map, allowing users to easily differentiate between the two taxis.
 
@@ -8,7 +8,7 @@ Detailed information about the requirements for the project can be found in the 
 
 ***
 
-# Yazılım Laboratuvarı II Proje 1
+# Taksi Takip Uygulaması
 
 Bu projede İsveç taksi verilerini
 içeren bir csv dosyasında bulunan
