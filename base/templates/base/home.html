@@ -42,14 +42,8 @@
         <form class="form-inline">
             <label for="car-select" class="label label-default p-2">Select a car</label>
             <select class="form-inline" id="car-select" aria-label="cars">
+                <!-- Options will be dynamically populated here -->
                 <option selected>Please select a car</option>
-                {% if user_id == 2 %}
-                    <option value="34">Car 34</option>
-                    <option value="386">Car 386</option>
-                {% elif user_id == 3 %}
-                    <option value="292">Car 292</option>
-                    <option value="246">Car 246</option>
-                {% endif %}
             </select>
             <label for="startHour" class="label label-default p-2">Start time</label>
             <input class="form-inline" id="startHour" type="number" name="startHour" min="0" max="24" required>
@@ -59,7 +53,6 @@
             <span class="validity p-2"></span>
             <button type="button" id="submit" class="btn btn-secondary btn-sm mb-1">Submit</button>
         </form>
-
         <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
             <span class="fs-4"></span>
         </a>
@@ -90,6 +83,38 @@
         src="https://maps.googleapis.com/maps/api/js?key={{ api_key|safe }}&callback=initMap&v=weekly"
         async
 ></script>
+
+<!-- Script to dynamically populate the car options -->
+<script>
+    // Example user_id passed from server (Replace this with your server-side logic)
+    const user_id = {{ user_id }}; // This should be the actual user_id from your backend
+
+    // Object to represent user-car relationships
+    const carData = {
+        2: [34, 386],
+        3: [292, 246]
+    };
+
+    // Function to populate car select options dynamically
+    function populateCarSelect(user_id, carData) {
+        const carSelect = document.getElementById('car-select');
+        carSelect.innerHTML = '<option selected>Please select a car</option>'; // Reset the options
+
+        if (carData[user_id]) {
+            carData[user_id].forEach(carId => {
+                const option = document.createElement('option');
+                option.value = carId;
+                option.textContent = `Car ${carId}`;
+                carSelect.appendChild(option);
+            });
+        }
+    }
+
+    // Call the function on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        populateCarSelect(user_id, carData);
+    });
+</script>
 
 </body>
 

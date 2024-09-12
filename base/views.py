@@ -13,7 +13,7 @@ from bson.json_util import dumps
 
 @login_required
 def home(request):
-    mongoengine.register_connection(alias='core', name='yazlab2_proje1')
+    mongoengine.register_connection(alias='core', name='taxi-tracker')
     dataDictionary = dumps(Cars.objects.to_json())
 
     context = {
@@ -24,8 +24,9 @@ def home(request):
     return render(request, 'base/home.html', context)
 
 
-def csvParse():
-    mongoengine.register_connection(alias='core', name='yazlab2_proje1')
+def csv_parse():
+    """ Read the car info from the csv file and create data on the mongodb """
+    mongoengine.register_connection(alias='core', name='taxi-tracker')
 
     with open('static/cars.csv', 'r') as csv_file:
         csv_reader = csv.reader(csv_file)
@@ -36,6 +37,3 @@ def csvParse():
             elif line[3] == "292" or line[3] == "246":
                 # musteri2
                 data_service.create_cars(line[0], float(line[1]), float(line[2]), int(line[3]), 3)
-
-
-# csvParse()

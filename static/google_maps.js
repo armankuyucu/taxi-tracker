@@ -1,176 +1,121 @@
 let map;
-
-const blueMarker = "https://maps.google.com/mapfiles/kml/paddle/blu-circle.png";
+const BLUE_MARKER_URL = "https://maps.google.com/mapfiles/kml/paddle/blu-circle.png";
 let markers = [];
 
+// Car data for each user
+const userCarData = {
+    2: [34, 386],
+    3: [292, 246]
+};
+
+// JavaScript to dynamically populate the select dropdown
+function populateCarSelect(user_id, carData) {
+    const carSelect = document.getElementById('car-select');
+    carSelect.innerHTML = '<option selected>Please select a car</option>';
+
+    if (carData[user_id]) {
+        carData[user_id].forEach(carId => {
+            const option = document.createElement('option');
+            option.value = carId;
+            option.textContent = `Car ${carId}`;
+            carSelect.appendChild(option);
+        });
+    }
+}
+
+populateCarSelect(user_id, carData);
+
 function initMap() {
-
     map = new google.maps.Map(document.getElementById("map"), {
-            center: {lat: 59.329326902597735, lng: 18.068576534807608},
-            zoom: 6,
-        }
-    );
+        center: { lat: 59.329326902597735, lng: 18.068576534807608 },
+        zoom: 6,
+    });
 
-    const mydata = JSON.parse(document.getElementById('mydata').textContent);
-    let mydataJson = JSON.parse(mydata);
-    mydataJson = JSON.parse(mydataJson);
-
-    const userId = JSON.parse(document.getElementById('user_id').textContent);
-    let user_id = JSON.parse(userId);
-    user_id = JSON.parse(user_id);
+    const mydataJson = JSON.parse(JSON.parse(JSON.parse(document.getElementById('mydata').textContent)));
+    const user_id = JSON.parse(JSON.parse(JSON.parse(document.getElementById('user_id').textContent)));
 
     let currentDate = new Date();
     document.getElementById("startHour").value = currentDate.getHours() - 1;
-    const currentTime =
-        padTo2Digits(currentDate.getHours()) + ':' + padTo2Digits(currentDate.getMinutes());
+    const currentTime = `${padTo2Digits(currentDate.getHours())}:${padTo2Digits(currentDate.getMinutes())}`;
 
-    let car34indexes = [];
-    let car386indexes = [];
-    let car292indexes = [];
-    let car246indexes = [];
-    let car34index;
-    let car386index;
-    let car292index;
-    let car246index;
+    // Car indexes by car ID
+    let carIndexes = {
+        34: [],
+        386: [],
+        292: [],
+        246: []
+    };
 
+    let carCurrentIndexes = {};
+
+    // Populate car indexes based on user data
     for (let i = 0; i < mydataJson.length; i++) {
         mydataJson[i].date_time = mydataJson[i].date_time.split(" ").slice(-1);
         if (mydataJson[i].user_id == user_id) {
-
-            if (mydataJson[i].car_id == 34) {
-                if (mydataJson[i].date_time == currentTime) {
-                    car34index = i;
-                }
-                car34indexes.push(i);
-            } else if (mydataJson[i].car_id == 386) {
-                if (mydataJson[i].date_time == currentTime) {
-                    car386index = i;
-                }
-                car386indexes.push(i);
-            } else if (mydataJson[i].car_id == 292) {
-                if (mydataJson[i].date_time == currentTime) {
-                    car292index = i;
-                }
-                car292indexes.push(i);
-            } else if (mydataJson[i].car_id == 246) {
-                if (mydataJson[i].date_time == currentTime) {
-                    car246index = i;
-                }
-                car246indexes.push(i);
+            if (mydataJson[i].date_time == currentTime) {
+                carCurrentIndexes[mydataJson[i].car_id] = i;
             }
-
+            carIndexes[mydataJson[i].car_id].push(i);
         }
     }
 
-    if (user_id == 2) {
-        last30Minutes(user_id, car34index, mydataJson, 0);
-        last30Minutes(user_id, car386index, mydataJson, 1);
-    } else if (user_id == 3) {
-        last30Minutes(user_id, car292index, mydataJson, 0);
-        last30Minutes(user_id, car246index, mydataJson, 1);
+    // Display last 30 minutes of data for each user's cars
+    if (userCarData[user_id]) {
+        userCarData[user_id].forEach((car_id, index) => {
+            last30Minutes(user_id, carCurrentIndexes[car_id], mydataJson, index);
+        });
     }
 
     document.getElementById("submit").onclick = function () {
         let startHour = document.getElementById("startHour").value;
         let endHour = document.getElementById("endHour").value;
-        let carSelect = document.querySelector('#car-select');
-        let car_id = carSelect.value;
-        if (car_id == "Please select a car") {
-            alert("The \"Select a car\" field can't be empty.");
-        } else {
-            if (enforceMinMax(startHour, endHour)) {
-                deleteMarkers();
+        let car_id = document.querySelector('#car-select').value;
 
-                if (user_id == 2) {
+        if (car_id === "Please select a car") {
+            alert("The 'Select a car' field can't be empty.");
+        } else if (enforceMinMax(startHour, endHour)) {
+            deleteMarkers();
 
-                    if (car_id == 34)
-                        showRoute(user_id, car_id, car34indexes[0], car34indexes[-1], mydataJson, 0, startHour, endHour);
-                    else if (car_id == 386)
-                        showRoute(user_id, car_id, car386indexes[0], car386indexes[-1], mydataJson, 1, startHour, endHour)
-                } else if (user_id == 3) {
-
-                    if (car_id == 292)
-                        showRoute(user_id, car_id, car292indexes[0], car292indexes[-1], mydataJson, 0, startHour, endHour);
-                    else if (car_id == 246)
-                        showRoute(user_id, car_id, car246indexes[0], car246indexes[-1], mydataJson, 1, startHour, endHour);
-                }
+            if (userCarData[user_id].includes(parseInt(car_id))) {
+                let index = userCarData[user_id].indexOf(parseInt(car_id));
+                showRoute(user_id, car_id, carIndexes[car_id][0], carIndexes[car_id][carIndexes[car_id].length - 1], mydataJson, index, startHour, endHour);
             }
         }
-    }
-
+    };
 }
 
-
 function enforceMinMax(startHour, endHour) {
-
-    if (-1 < parseInt(startHour) && parseInt(startHour) < 25
-        && -1 < parseInt(endHour) && parseInt(endHour) < 25) {
+    if (isValidHour(startHour) && isValidHour(endHour)) {
         return true;
     } else {
-        alert("Please enter a number between 0 and 24")
+        alert("Please enter a number between 0 and 24");
         return false;
     }
 }
 
+function isValidHour(hour) {
+    return -1 < parseInt(hour) && parseInt(hour) < 25;
+}
 
-// shows the route for the last 30 minutes
+// Shows the route for the last 30 minutes
 function last30Minutes(user_id, carIndex, mydataJson, marker_id) {
     for (let i = carIndex; (carIndex - 30) < i; i--) {
-        let coords = {lat: mydataJson[i].latitude, lng: mydataJson[i].longitude}
-        let marker;
-        if (marker_id === 0) {
-            marker = addMarker(coords);
-        } else if (marker_id === 1) {
-            marker = addBlueMarker(coords);
-        }
-
-        let infowindow = new google.maps.InfoWindow({
-            content: `lat:${coords.lat}, lng:${coords.lng},
-                      date:${mydataJson[i].date_time},
-                      car_id:${mydataJson[i].car_id}`
-        });
-        marker.addListener("click", () => {
-            infowindow.open({
-                anchor: marker,
-                map,
-                shouldFocus: false,
-            });
-        });
+        let coords = { lat: mydataJson[i].latitude, lng: mydataJson[i].longitude };
+        let marker = marker_id === 0 ? addMarker(coords) : addBlueMarker(coords);
+        addInfoWindow(marker, coords, mydataJson[i]);
     }
-
 }
-
 
 function showRoute(user_id, car_id, carFirstIndex, carLastIndex, mydataJson, marker_id, startHour, endHour) {
-    let counter = 0;
     for (let i = (carFirstIndex + startHour * 60); i < (carFirstIndex + endHour * 60); i++) {
         if (car_id == mydataJson[i].car_id) {
-            let coords = {lat: mydataJson[i].latitude, lng: mydataJson[i].longitude};
-            let marker;
-            if (marker_id === 0) {
-                marker = addMarker(coords);
-            } else if (marker_id === 1) {
-                marker = addBlueMarker(coords);
-            }
-
-            let infowindow = new google.maps.InfoWindow({
-                content: `lat:${coords.lat}, lng:${coords.lng},
-                      date:${mydataJson[i].date_time},
-                      car_id:${mydataJson[i].car_id}`
-            });
-            marker.addListener("click", () => {
-                infowindow.open({
-                    anchor: marker,
-                    map,
-                    shouldFocus: false,
-                });
-            });
+            let coords = { lat: mydataJson[i].latitude, lng: mydataJson[i].longitude };
+            let marker = marker_id === 0 ? addMarker(coords) : addBlueMarker(coords);
+            addInfoWindow(marker, coords, mydataJson[i]);
         }
     }
 }
 
-
-//Add marker function
 function addMarker(coords) {
     let marker = new google.maps.Marker({
         position: coords,
@@ -183,22 +128,26 @@ function addMarker(coords) {
 function addBlueMarker(coords) {
     let marker = new google.maps.Marker({
         position: coords,
-        icon: blueMarker,
+        icon: BLUE_MARKER_URL,
         map: map
     });
     markers.push(marker);
     return marker;
 }
 
-// Sets the map on all markers in the array.
-function setMapOnAll(map) {
-    for (let i = 0; i < markers.length; i++) {
-        markers[i].setMap(map);
-    }
+function addInfoWindow(marker, coords, data) {
+    let infowindow = new google.maps.InfoWindow({
+        content: `lat:${coords.lat}, lng:${coords.lng}, date:${data.date_time}, car_id:${data.car_id}`
+    });
+    marker.addListener("click", () => {
+        infowindow.open({ anchor: marker, map, shouldFocus: false });
+    });
 }
 
+function setMapOnAll(map) {
+    markers.forEach(marker => marker.setMap(map));
+}
 
-// Deletes all markers in the array by removing references to them.
 function deleteMarkers() {
     setMapOnAll(null);
     markers = [];
