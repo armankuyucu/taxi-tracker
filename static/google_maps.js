@@ -8,35 +8,19 @@ const userCarData = {
     3: [292, 246]
 };
 
-// JavaScript to dynamically populate the select dropdown
-function populateCarSelect(user_id, carData) {
-    const carSelect = document.getElementById('car-select');
-    carSelect.innerHTML = '<option selected>Please select a car</option>';
-
-    if (carData[user_id]) {
-        carData[user_id].forEach(carId => {
-            const option = document.createElement('option');
-            option.value = carId;
-            option.textContent = `Car ${carId}`;
-            carSelect.appendChild(option);
-        });
-    }
-}
-
-populateCarSelect(user_id, carData);
-
 function initMap() {
     map = new google.maps.Map(document.getElementById("map"), {
         center: { lat: 59.329326902597735, lng: 18.068576534807608 },
         zoom: 6,
     });
 
-    const mydataJson = JSON.parse(JSON.parse(JSON.parse(document.getElementById('mydata').textContent)));
+    const taxiLocations = JSON.parse(JSON.parse(JSON.parse(document.getElementById('mydata').textContent)));
     const user_id = JSON.parse(JSON.parse(JSON.parse(document.getElementById('user_id').textContent)));
 
     let currentDate = new Date();
-    document.getElementById("startHour").value = currentDate.getHours() - 1;
-    const currentTime = `${padTo2Digits(currentDate.getHours())}:${padTo2Digits(currentDate.getMinutes())}`;
+    current_hour = currentDate.getHours()
+    document.getElementById("startHour").value = (current_hour != 0) ? current_hour - 1 : 0;
+    const currentTime = `${padTo2Digits(current_hour)}:${padTo2Digits(currentDate.getMinutes())}`;
 
     // Car indexes by car ID
     let carIndexes = {
@@ -49,20 +33,20 @@ function initMap() {
     let carCurrentIndexes = {};
 
     // Populate car indexes based on user data
-    for (let i = 0; i < mydataJson.length; i++) {
-        mydataJson[i].date_time = mydataJson[i].date_time.split(" ").slice(-1);
-        if (mydataJson[i].user_id == user_id) {
-            if (mydataJson[i].date_time == currentTime) {
-                carCurrentIndexes[mydataJson[i].car_id] = i;
+    for (let i = 0; i < taxiLocations.length; i++) {
+        taxiLocations[i].date_time = taxiLocations[i].date_time.split(" ").slice(-1);
+        if (taxiLocations[i].user_id == user_id) {
+            if (taxiLocations[i].date_time == currentTime) {
+                carCurrentIndexes[taxiLocations[i].car_id] = i;
             }
-            carIndexes[mydataJson[i].car_id].push(i);
+            carIndexes[taxiLocations[i].car_id].push(i);
         }
     }
 
     // Display last 30 minutes of data for each user's cars
     if (userCarData[user_id]) {
         userCarData[user_id].forEach((car_id, index) => {
-            last30Minutes(user_id, carCurrentIndexes[car_id], mydataJson, index);
+            last30Minutes(user_id, carCurrentIndexes[car_id], taxiLocations, index);
         });
     }
 
@@ -78,7 +62,7 @@ function initMap() {
 
             if (userCarData[user_id].includes(parseInt(car_id))) {
                 let index = userCarData[user_id].indexOf(parseInt(car_id));
-                showRoute(user_id, car_id, carIndexes[car_id][0], carIndexes[car_id][carIndexes[car_id].length - 1], mydataJson, index, startHour, endHour);
+                showRoute(user_id, car_id, carIndexes[car_id][0], carIndexes[car_id][carIndexes[car_id].length - 1], taxiLocations, index, startHour, endHour);
             }
         }
     };
@@ -98,20 +82,20 @@ function isValidHour(hour) {
 }
 
 // Shows the route for the last 30 minutes
-function last30Minutes(user_id, carIndex, mydataJson, marker_id) {
+function last30Minutes(user_id, carIndex, taxiLocations, marker_id) {
     for (let i = carIndex; (carIndex - 30) < i; i--) {
-        let coords = { lat: mydataJson[i].latitude, lng: mydataJson[i].longitude };
+        let coords = { lat: taxiLocations[i].latitude, lng: taxiLocations[i].longitude };
         let marker = marker_id === 0 ? addMarker(coords) : addBlueMarker(coords);
-        addInfoWindow(marker, coords, mydataJson[i]);
+        addInfoWindow(marker, coords, taxiLocations[i]);
     }
 }
 
-function showRoute(user_id, car_id, carFirstIndex, carLastIndex, mydataJson, marker_id, startHour, endHour) {
+function showRoute(user_id, car_id, carFirstIndex, carLastIndex, taxiLocations, marker_id, startHour, endHour) {
     for (let i = (carFirstIndex + startHour * 60); i < (carFirstIndex + endHour * 60); i++) {
-        if (car_id == mydataJson[i].car_id) {
-            let coords = { lat: mydataJson[i].latitude, lng: mydataJson[i].longitude };
+        if (car_id == taxiLocations[i].car_id) {
+            let coords = { lat: taxiLocations[i].latitude, lng: taxiLocations[i].longitude };
             let marker = marker_id === 0 ? addMarker(coords) : addBlueMarker(coords);
-            addInfoWindow(marker, coords, mydataJson[i]);
+            addInfoWindow(marker, coords, taxiLocations[i]);
         }
     }
 }
