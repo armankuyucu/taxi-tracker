@@ -18,9 +18,8 @@ def register(request):
             selected_car_ids = request.POST.getlist('cars')
 
             try:
-                # Use a transaction to ensure atomicity
+                # Use a transaction to ensure no user is saved if car assignment fails
                 with transaction.atomic():
-                    # Save the user only if all car assignments succeed
                     user = form.save()
 
                     # Check for car assignments
@@ -32,19 +31,16 @@ def register(request):
                         car = Car(user=user, car_id=car_id)
                         car.save()
 
-                    # If we reach here, everything went fine
                     messages.success(request, 'Account has been created! Now you can log in.')
                     return redirect('login')
 
             except IntegrityError as e:
-                # Handle the case where car assignment fails
+                # Handle the case where car assignment fails, e.g. car ID already assigned to another user
                 form.add_error(None, str(e))
                 messages.error(request, f"Failed to register user: {e}")
-
+                return render(request, 'users/register.html', {'form': CustomUserCreationForm()})
     else:
-        form = CustomUserCreationForm()
-
-    return render(request, 'users/register.html', {'form': form})
+        return render(request, 'users/register.html', {'form': CustomUserCreationForm()})
 
 
 @login_required

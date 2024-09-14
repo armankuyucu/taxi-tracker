@@ -21,4 +21,4 @@ class Car(models.Model):
     car_id = models.IntegerField(unique=True)
 
     def __str__(self):
-        return f"{self.user.name}'s Car: {self.car_id}"
+        return f"{self.user.username}'s Car: {self.car_id}"

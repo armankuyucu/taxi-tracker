@@ -2,51 +2,43 @@ let map;
 const BLUE_MARKER_URL = "https://maps.google.com/mapfiles/kml/paddle/blu-circle.png";
 let markers = [];
 
-// Car data for each user
-const userCarData = {
-    2: [34, 386],
-    3: [292, 246]
-};
 
 function initMap() {
+    // Create a map centered in Stockholm
     map = new google.maps.Map(document.getElementById("map"), {
         center: { lat: 59.329326902597735, lng: 18.068576534807608 },
-        zoom: 6,
+        zoom: 7,
     });
 
-    const taxiLocations = JSON.parse(JSON.parse(JSON.parse(document.getElementById('mydata').textContent)));
-    const user_id = JSON.parse(JSON.parse(JSON.parse(document.getElementById('user_id').textContent)));
-
+    const taxiLocations = JSON.parse(JSON.parse(JSON.parse(document.getElementById('taxi_locations').textContent)));
+    const user_id = JSON.parse(document.getElementById('user_id').textContent);
+    const car_ids = JSON.parse(document.getElementById('car_ids').textContent);
     let currentDate = new Date();
     current_hour = currentDate.getHours()
     document.getElementById("startHour").value = (current_hour != 0) ? current_hour - 1 : 0;
     const currentTime = `${padTo2Digits(current_hour)}:${padTo2Digits(currentDate.getMinutes())}`;
 
-    // Car indexes by car ID
-    let carIndexes = {
-        34: [],
-        386: [],
-        292: [],
-        246: []
-    };
+    let carLocationIndexes = {};  // Store the indexes of each car's location data
+    // use a for each loop to initialize the carLocationIndexes object
+    car_ids.forEach((car_id) => {
+        carLocationIndexes[car_id] = [];
+    });
 
-    let carCurrentIndexes = {};
+    let currentCarIndexes = {};
 
-    // Populate car indexes based on user data
+    // Populate location indexes for each car
     for (let i = 0; i < taxiLocations.length; i++) {
         taxiLocations[i].date_time = taxiLocations[i].date_time.split(" ").slice(-1);
-        if (taxiLocations[i].user_id == user_id) {
-            if (taxiLocations[i].date_time == currentTime) {
-                carCurrentIndexes[taxiLocations[i].car_id] = i;
-            }
-            carIndexes[taxiLocations[i].car_id].push(i);
+        if (taxiLocations[i].date_time == currentTime) {
+            currentCarIndexes[taxiLocations[i].car_id] = i;
         }
+        carLocationIndexes[taxiLocations[i].car_id].push(i);
     }
 
     // Display last 30 minutes of data for each user's cars
-    if (userCarData[user_id]) {
-        userCarData[user_id].forEach((car_id, index) => {
-            last30Minutes(user_id, carCurrentIndexes[car_id], taxiLocations, index);
+    if (car_ids) {
+        car_ids.forEach((car_id, index) => {
+            showRouteForLast30Minutes(user_id, currentCarIndexes[car_id], taxiLocations, index);
         });
     }
 
@@ -58,12 +50,11 @@ function initMap() {
         if (car_id === "Please select a car") {
             alert("The 'Select a car' field can't be empty.");
         } else if (enforceMinMax(startHour, endHour)) {
+            // Clear the map of previous markers
             deleteMarkers();
 
-            if (userCarData[user_id].includes(parseInt(car_id))) {
-                let index = userCarData[user_id].indexOf(parseInt(car_id));
-                showRoute(user_id, car_id, carIndexes[car_id][0], carIndexes[car_id][carIndexes[car_id].length - 1], taxiLocations, index, startHour, endHour);
-            }
+            let index = car_ids.indexOf(parseInt(car_id));
+            showRoute(car_id, carLocationIndexes[car_id][0], taxiLocations, index, startHour, endHour);
         }
     };
 }
@@ -82,39 +73,39 @@ function isValidHour(hour) {
 }
 
 // Shows the route for the last 30 minutes
-function last30Minutes(user_id, carIndex, taxiLocations, marker_id) {
+function showRouteForLast30Minutes(user_id, carIndex, taxiLocations, index) {
     for (let i = carIndex; (carIndex - 30) < i; i--) {
         let coords = { lat: taxiLocations[i].latitude, lng: taxiLocations[i].longitude };
-        let marker = marker_id === 0 ? addMarker(coords) : addBlueMarker(coords);
+        // If the index is even, add a red marker, otherwise add a blue marker
+        let marker = index % 2 === 0 ? addMarker(coords) : addMarker(coords, "blue");
         addInfoWindow(marker, coords, taxiLocations[i]);
     }
 }
 
-function showRoute(user_id, car_id, carFirstIndex, carLastIndex, taxiLocations, marker_id, startHour, endHour) {
+function showRoute(car_id, carFirstIndex, taxiLocations, index, startHour, endHour) {
     for (let i = (carFirstIndex + startHour * 60); i < (carFirstIndex + endHour * 60); i++) {
         if (car_id == taxiLocations[i].car_id) {
             let coords = { lat: taxiLocations[i].latitude, lng: taxiLocations[i].longitude };
-            let marker = marker_id === 0 ? addMarker(coords) : addBlueMarker(coords);
+            let marker = index % 2 === 0 ? addMarker(coords) : addMarker(coords, "blue");
             addInfoWindow(marker, coords, taxiLocations[i]);
         }
     }
 }
 
-function addMarker(coords) {
-    let marker = new google.maps.Marker({
-        position: coords,
-        map: map
-    });
-    markers.push(marker);
-    return marker;
-}
-
-function addBlueMarker(coords) {
-    let marker = new google.maps.Marker({
-        position: coords,
-        icon: BLUE_MARKER_URL,
-        map: map
-    });
+function addMarker(coords, color=null) {
+    let marker;
+    if (color === "blue") {
+        marker = new google.maps.Marker({
+            position: coords,
+            icon: BLUE_MARKER_URL,
+            map: map
+        }); 
+    } else {
+        marker = new google.maps.Marker({
+            position: coords,
+            map: map
+        });    
+    }
     markers.push(marker);
     return marker;
 }

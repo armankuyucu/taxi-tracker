@@ -13,10 +13,9 @@ from bson.json_util import dumps
 @login_required
 def home(request):
     mongoengine.register_connection(alias='core', name='taxi-tracker')
-    # filter cars and taxi locations by user to prevent unauthorized access
+    # Filter cars and taxi locations by user to prevent unauthorized access
     cars_list = list(Car.objects.filter(user_id=request.user.id).values())
     car_ids_for_user = [car['car_id'] for car in cars_list]
-    cars_json = JsonResponse(cars_list, safe=False)  
 
     taxi_locations = TaxiLocations.objects.filter(car_id__in=car_ids_for_user)
     taxi_locations_json = dumps(taxi_locations.to_json())

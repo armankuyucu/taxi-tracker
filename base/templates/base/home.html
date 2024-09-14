@@ -74,8 +74,9 @@
 <div id="map"></div>
 <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
 
-{{ mydata|json_script:"mydata" }}
+{{ taxi_locations|json_script:"taxi_locations" }}
 {{ user_id|json_script:"user_id" }}
+{{ car_ids|json_script:"car_ids" }}
 <script src="{% static 'google_maps.js' %}"></script>
 
 <script
@@ -85,32 +86,23 @@
 
 <!-- Script to dynamically populate the car options -->
 <script>
-    const user_id = {{ user_id }};
-
-    // Object to represent user-car relationships
-    const carData = {
-        2: [34, 386],
-        3: [292, 246]
-    };
-
     // Function to populate car select options dynamically
-    function populateCarSelect(user_id, carData) {
+    function populateCarSelect(car_ids) {
         const carSelect = document.getElementById('car-select');
         carSelect.innerHTML = '<option selected>Please select a car</option>'; // Reset the options
 
-        if (carData[user_id]) {
-            carData[user_id].forEach(carId => {
-                const option = document.createElement('option');
-                option.value = carId;
-                option.textContent = `Car ${carId}`;
-                carSelect.appendChild(option);
-            });
-        }
+        car_ids.forEach(carId => {
+            const option = document.createElement('option');
+            option.value = carId;
+            option.textContent = `Car ${carId}`;
+            carSelect.appendChild(option);
+        });
     }
-
-    // Call the function on page load
+    // Get the car ids from the server
+    const car_ids = {{ car_ids|safe }};
+    // Ensure the DOM is fully loaded before populating the car select options
     document.addEventListener('DOMContentLoaded', function() {
-        populateCarSelect(user_id, carData);
+        populateCarSelect(car_ids);
     });
 </script>
 
