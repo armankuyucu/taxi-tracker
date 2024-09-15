@@ -3,39 +3,23 @@ from django.shortcuts import render
 from django.conf import settings
 
 from django.contrib.auth.decorators import login_required
-import csv
-
-import base.data_service as data_service
-
-from base.cars import Cars
 from bson.json_util import dumps
+from taxi_tracker.models import TaxiLocations, Car
 
 
 @login_required
-def home(request):
-    mongoengine.register_connection(alias='core', name='yazlab2_proje1')
-    dataDictionary = dumps(Cars.objects.to_json())
+def map_view(request):
+    mongoengine.register_connection(alias='core', name='taxi-tracker')
+    # Filter cars and taxi locations by user to prevent unauthorized access
+    cars_list = list(Car.objects.filter(user_id=request.user.id).values())
+    car_ids_for_user = [car['car_id'] for car in cars_list]
 
+    taxi_locations = TaxiLocations.objects.filter(car_id__in=car_ids_for_user)
+    taxi_locations_json = dumps(taxi_locations.to_json())
     context = {
         'api_key': settings.GOOGLE_MAPS_API_KEY,
-        'mydata': dataDictionary,
+        'taxi_locations': taxi_locations_json,
+        'car_ids': car_ids_for_user,
         'user_id': request.user.id,
     }
-    return render(request, 'base/home.html', context)
-
-
-def csvParse():
-    mongoengine.register_connection(alias='core', name='yazlab2_proje1')
-
-    with open('static/cars.csv', 'r') as csv_file:
-        csv_reader = csv.reader(csv_file)
-        for line in csv_reader:
-            if line[3] == "34" or line[3] == "386":
-                # musteri1
-                data_service.create_cars(line[0], float(line[1]), float(line[2]), int(line[3]), 2)
-            elif line[3] == "292" or line[3] == "246":
-                # musteri2
-                data_service.create_cars(line[0], float(line[1]), float(line[2]), int(line[3]), 3)
-
-
-# csvParse()
+    return render(request, 'base/map_view.html', context)

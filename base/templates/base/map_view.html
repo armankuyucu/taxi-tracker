@@ -12,7 +12,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
 
-    <title>Simple Map</title>
+    <title>Taxi Tracker</title>
 
     <style>
         #map {
@@ -27,7 +27,6 @@
             padding: 0;
         }
     </style>
-
 </head>
 
 <body>
@@ -42,14 +41,8 @@
         <form class="form-inline">
             <label for="car-select" class="label label-default p-2">Select a car</label>
             <select class="form-inline" id="car-select" aria-label="cars">
+                <!-- Options will be dynamically populated here -->
                 <option selected>Please select a car</option>
-                {% if user_id == 2 %}
-                    <option value="34">Car 34</option>
-                    <option value="386">Car 386</option>
-                {% elif user_id == 3 %}
-                    <option value="292">Car 292</option>
-                    <option value="246">Car 246</option>
-                {% endif %}
             </select>
             <label for="startHour" class="label label-default p-2">Start time</label>
             <input class="form-inline" id="startHour" type="number" name="startHour" min="0" max="24" required>
@@ -59,7 +52,6 @@
             <span class="validity p-2"></span>
             <button type="button" id="submit" class="btn btn-secondary btn-sm mb-1">Submit</button>
         </form>
-
         <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
             <span class="fs-4"></span>
         </a>
@@ -82,14 +74,37 @@
 <div id="map"></div>
 <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
 
-{{ mydata|json_script:"mydata" }}
+{{ taxi_locations|json_script:"taxi_locations" }}
 {{ user_id|json_script:"user_id" }}
+{{ car_ids|json_script:"car_ids" }}
 <script src="{% static 'google_maps.js' %}"></script>
 
 <script
         src="https://maps.googleapis.com/maps/api/js?key={{ api_key|safe }}&callback=initMap&v=weekly"
         async
 ></script>
+
+<!-- Script to dynamically populate the car options -->
+<script>
+    // Function to populate car select options dynamically
+    function populateCarSelect(car_ids) {
+        const carSelect = document.getElementById('car-select');
+        carSelect.innerHTML = '<option selected>Please select a car</option>'; // Reset the options
+
+        car_ids.forEach(carId => {
+            const option = document.createElement('option');
+            option.value = carId;
+            option.textContent = `Car ${carId}`;
+            carSelect.appendChild(option);
+        });
+    }
+    // Get the car ids from the server
+    const car_ids = {{ car_ids|safe }};
+    // Ensure the DOM is fully loaded before populating the car select options
+    document.addEventListener('DOMContentLoaded', function() {
+        populateCarSelect(car_ids);
+    });
+</script>
 
 </body>
 
