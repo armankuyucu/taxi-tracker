@@ -32,17 +32,21 @@ This Django-based project visualizes the historical locations of Swedish taxis o
    ```
 3. Install the required packages:
    ```bash
-   conda env create -f taxi-tracker.yml
+   conda env create -f taxi_tracker.yml
    ```
 4. Activate the conda environment:
    ```bash
     conda activate taxi-tracker
     ```
-5. Start the application:
+5. Make migrations:
+   ```bash
+   python manage.py migrate
+   ```
+6. Start the application:
    ```bash
    python manage.py runserver
    ```
-5. Open the app in your browser:
+7. Open the app in your browser:
    ```http://127.0.0.1:8000/```
 
 
@@ -56,4 +60,4 @@ python manage.py test
 
 ## Screenshot
 
-![image](https://user-images.githubusercontent.com/74271517/161285298-1dac6e94-e3c4-45b9-b54e-da897d2b9e77.png)
+![image](https://github.com/user-attachments/assets/fe297f9a-6a7e-490a-89cd-d7df15d214f4)
