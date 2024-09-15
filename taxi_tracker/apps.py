@@ -8,4 +8,4 @@ class TaxiTrackerConfig(AppConfig):
     def ready(self):
         logging.basicConfig(level=logging.INFO)  # Set the logging level to INFO
         from . import data_service
-        data_service.populate_database()
+        data_service.populate_database('taxi_tracker')

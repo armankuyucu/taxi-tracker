@@ -2,12 +2,17 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth.models import User
 from datetime import datetime
+from mongoengine import connect, disconnect
 from taxi_tracker.models import TaxiLocations, Car
 
 
 class TestViews(TestCase):
 
     def setUp(self):
+        # Disconnect from any existing connection with the alias 'core', then connect to the test database
+        disconnect(alias='core')
+        connect('taxi_tracker_test', alias='core')
+
         self.client = Client()
         self.map_view_url = reverse('map_view')
         self.login_url = reverse('login')
@@ -40,10 +45,43 @@ class TestViews(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'users/login.html')
 
+    def test_login_success(self):
+        User.objects.create_user(username='testuser', password='testpassword')
+
+        response = self.client.post(self.login_url, {
+            'username': 'testuser',
+            'password': 'testpassword'
+        })
+
+        self.assertEqual(response.status_code, 302) # Redirect after login
+        self.assertRedirects(response, self.map_view_url)
+
+    def test_login_failure(self):
+        response = self.client.post(self.login_url, {
+            'username': 'testuser',
+            'password': 'invalidpassword'
+        })
+
+        self.assertEqual(response.status_code, 200)
+        # Check if the form has the correct error message
+        self.assertIn(('Please enter a correct username and password. Note that both fields may be case-sensitive.'),
+                      response.context['form'].non_field_errors())
+
+        self.assertTemplateUsed(response, 'users/login.html')  # Should re-render the login page
+
     def test_logout_get(self):
         response = self.client.get(self.logout_url)
 
         self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'users/logout.html')
+
+    def test_logout_success(self):
+        User.objects.create_user(username='testuser', password='testpassword')
+        self.client.login(username='testuser', password='testpassword')
+
+        response = self.client.get(self.logout_url)
+
+        self.assertEqual(response.status_code, 200)  # Should render the logout page
         self.assertTemplateUsed(response, 'users/logout.html')
 
     def test_register_get(self):

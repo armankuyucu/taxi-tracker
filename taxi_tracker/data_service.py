@@ -27,10 +27,10 @@ def save_taxi_locations(date_time: str, latitude: float, longitude: float, car_i
         logging.error(f"Validation error happened while creating car: {e}")
 
 
-def populate_database():
+def populate_database(db_name: str):
     """ Read the taxi locations from the csv file and create data in MongoDB, but only if not already created """
     try:
-        mongoengine.register_connection(alias='core', name='taxi-tracker')
+        mongoengine.register_connection(alias='core', name=db_name)
 
         # Check if the collection is empty
         if TaxiLocations.objects.count() > 0:
