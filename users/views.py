@@ -38,10 +38,11 @@ def register(request):
                 # Handle the case where car assignment fails, e.g. car ID already assigned to another user
                 form.add_error(None, str(e))
                 messages.error(request, f"Failed to register user: {e}")
-                return render(request, 'users/register.html', {'form': CustomUserCreationForm()})
+                return render(request, 'users/register.html', {'form': form})
+        else:
+            return render(request, 'users/register.html', {'form': form})
     else:
         return render(request, 'users/register.html', {'form': CustomUserCreationForm()})
-
 
 @login_required
 def profile(request):

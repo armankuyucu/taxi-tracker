@@ -34,7 +34,6 @@ def populate_database():
 
         # Check if the collection is empty
         if TaxiLocations.objects.count() > 0:
-            logging.info("Data already exists in the database. Skipping CSV import.")
             return  # Exit the function if data already exists
 
         with open('static/cars.csv', 'r') as csv_file:
